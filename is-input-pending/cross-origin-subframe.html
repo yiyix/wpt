@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-actions.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="pointer-tests.js"></script>
+</head>
+<body>
+  <iframe src="http://localhost:8081/is-input-pending/blank.html"></iframe>
+  <p>Ensure that a parent frame cannot detect events on a cross-origin subframe.</p>
+  <script>
+    window.addEventListener('load', () => {
+      runPointerTests('cannot detect cross-origin events', 10, 10, false);
+    });
+  </script>
+</body>
+</html>

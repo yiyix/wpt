@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-actions.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="pointer-tests.js"></script>
+</head>
+<body>
+  <iframe src="blank.html"></iframe>
+  <p>Ensure that a parent frame can detect events on one of its same-origin subframes.</p>
+  <script>
+    window.addEventListener('load', () => {
+      runPointerTests('can detect same-origin iframe events', 10, 10, true);
+    });
+  </script>
+</body>
+</html>
