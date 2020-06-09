@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script>
+    const t0 = async_test("onload attribute is set before CSP is set");
+    const t1 = async_test("onload attribute is set before CSP is set and modified after CSP is set");
+    const t2 = async_test("onload attribute is set and modified after CSP is set");
+  </script>
+  <script id="target0" nonce="fox" onload="t0.unreached_func('original onload fired')();"></script>
+  <script id="target1" nonce="fox" onload="t1.unreached_func('original onload fired')();"></script>
+  <meta http-equiv="Content-Security-Policy" content="script-src * 'nonce-fox';">
+  <script id="target2" nonce="fox" onload="t2.unreached_func('original onload fired')();"></script>
+</head>
+<body>
+  <script nonce="fox">
+    // step_timeout() is used to execute the scripts after
+    // <script>'s load events (if fired).
+
+    const target0 = document.querySelector("#target0");
+    target0.src = "data:text/javascript,t0.step_timeout(() => t0.done(), 0);";
+
+    const target1 = document.querySelector("#target1");
+    target1.setAttribute("onload", "t1.unreached_func('new onload fired')();");
+    target1.src = "data:text/javascript,t1.step_timeout(() => t1.done(), 0);";
+
+    const target2 = document.querySelector("#target2");
+    target2.setAttribute("onload", "t2.unreached_func('new onload fired')();");
+    target2.src = "data:text/javascript,t2.step_timeout(() => t2.done(), 0);";
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script>
+    var onClick1Evaluated = false;
+    var onClick2Evaluated = false;
+  </script>
+  <a id="a1" onclick="parent.onClick1Evaluated = true;"></a>
+  <iframe></iframe>
+</head>
+<body>
+  <script>
+    const iframeDocument = document.querySelector("iframe").contentDocument;
+    iframeDocument.open();
+    iframeDocument.write(`
+        <meta http-equiv="Content-Security-Policy" content="script-src * 'nonce-fox';">
+        <body>
+          <a id="a2" onclick="parent.onClick2Evaluated = true;"></a>
+        </body>`);
+    iframeDocument.close();
+
+    document.body.appendChild(iframeDocument.querySelector("#a2"));
+    iframeDocument.body.appendChild(document.querySelector("#a1"));
+
+    document.querySelector("#a2").click();
+    iframeDocument.querySelector("#a1").click();
+
+    test(
+      () => assert_false(onClick1Evaluated, "onclick evaluated"),
+      "onclick set in Document w/o CSP and clicked in Document w/ CSP should NOT be fired");
+
+    test(
+      () => assert_false(onClick2Evaluated, "onclick evaluated"),
+      "onclick set in Document w CSP and clicked in Document w/o CSP should NOT be fired");
+  </script>
+</body>
+</html>
