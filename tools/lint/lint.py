@@ -49,6 +49,9 @@ if MYPY:
     Ignorelist = Dict[Text, Dict[Text, Set[Optional[int]]]]
 
 
+TASKCLUSTER_OUTPUT_FILE = "/home/test/artifacts/checkrun.md"
+
+
 logger = None  # type: Optional[logging.Logger]
 
 
@@ -57,13 +60,19 @@ def setup_logging(prefix=False):
     global logger
     if logger is None:
         logger = logging.getLogger(os.path.basename(os.path.splitext(__file__)[0]))
-        handler = logging.StreamHandler(sys.stdout)  # type: logging.Handler
-        # Only add a handler if the parent logger is missing a handler
+        # Only add a stdout handler if the parent logger is missing a handler
         parent = logger.parent
         assert isinstance(parent, logging.Logger)
         if parent and len(parent.handlers) == 0:
-            handler = logging.StreamHandler(sys.stdout)
+            handler = logging.StreamHandler(sys.stdout)  # type: logging.Handler
             logger.addHandler(handler)
+
+        # When running on Taskcluster, we want to dump to the GitHub Checks
+        # output file too.
+        if os.getenv("TASKCLUSTER_ROOT_URL"):
+            handler = logging.FileHandler(TASKCLUSTER_OUTPUT_FILE)  # type: logging.Handler
+            logger.addHandler(handler)
+
     if prefix:
         format = logging.BASIC_FORMAT
     else:
