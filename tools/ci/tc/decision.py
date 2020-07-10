@@ -238,7 +238,7 @@ def create_tc_task(event, task, taskgroup_id, depends_on_ids, env_extra=None):
             "env": task.get("env", {}),
         },
         "extra": {
-            "github_event": json.dumps(event)
+            "github_event": json.dumps(event),
             "github": {
                 "customCheckRun": {
                     "textArtifactName": "public/results/checkrun.md",
