@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<title>Base URLs used in resolving specifiers in dynamic imports</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<script>
+window.promises = [];
+</script>
+<!-- Dynamic imports from a CORS cross origin classic script -->
+<script src="../beta/redirect.py?location=http://{{domains[www1]}}:{{ports[http][0]}}/html/semantics/scripting-1/the-script-element/module/dynamic-import/gamma/base-url.sub.js"></script>
+<!-- Dynamic imports from a CORS same origin classic script -->
+<script src="../beta/redirect.py?location=http://{{domains[www1]}}:{{ports[http][0]}}/html/semantics/scripting-1/the-script-element/module/dynamic-import/gamma/base-url.sub.js%3Fpipe=header(Access-Control-Allow-Origin,*)" crossorigin></script>
+<!-- Dynamic imports from a (CORS same origin) module script -->
+<script src="../beta/redirect.py?location=http://{{domains[www1]}}:{{ports[http][0]}}/html/semantics/scripting-1/the-script-element/module/dynamic-import/gamma/base-url.sub.js%3Fpipe=header(Access-Control-Allow-Origin,*)" type="module"></script>
+
+<script type="module">
+// Relative URL-like specifiers should be resolved based on script's base URL.
+promise_test(() => {
+    return window.promises[0]
+      .then(module => {
+          // This code should be unreached, but assert_equals() is used here
+          // to log `module.A["from"]` in case of test failures.
+          assert_equals(module.A["from"], "(unreached)",
+            "Relative URL-like specifier resolution should fail");
+          assert_unreached();
+        },
+        () => {});
+  },
+  `Relative URL-like from CORS cross origin classic script`);
+
+promise_test(() => {
+    return window.promises[2]
+      .then(module => {
+          assert_equals(module.A["from"], "gamma/import.js");
+        });
+  },
+  `Relative URL-like from CORS same origin classic script`);
+promise_test(() => {
+    return window.promises[4]
+      .then(module => {
+          assert_equals(module.A["from"], "gamma/import.js");
+        });
+  },
+  `Relative URL-like from CORS same origin module script`);
+
+// Absolute URL-like specifiers.
+promise_test(() => {
+    return window.promises[1]
+      .then(module => {
+          assert_equals(module.A["from"], "gamma/import.js");
+        });
+  },
+  `Absolute URL-like from CORS cross origin classic script`);
+promise_test(() => {
+    return window.promises[3]
+      .then(module => {
+          assert_equals(module.A["from"], "gamma/import.js");
+        });
+  },
+  `Absolute URL-like from CORS same origin classic script`);
+promise_test(() => {
+    return window.promises[5]
+      .then(module => {
+          assert_equals(module.A["from"], "gamma/import.js");
+        });
+  },
+  `Absolute URL-like from CORS same origin module script`);
+</script>
